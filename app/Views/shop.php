@@ -227,14 +227,18 @@
 
                                                         <div class="d-flex justify-content-between flex-lg-wrap mt-auto align-items-center">
                                                             <p class="text-dark fs-5 fw-bold mb-0">Rp <?= number_format($product['harga'], 0, ',', '.') ?></p>
-                                                            <form action="<?= base_url('cart/add') ?>" method="post" class="add-to-cart-form">
-                                                                <?= csrf_field() ?>
-                                                                <input type="hidden" name="product_id" value="<?= esc($product['product_id']) ?>">
-                                                                <input type="hidden" name="product_name" value="<?= esc($product['nama_produk']) ?>">
-                                                                <input type="hidden" name="product_price" value="<?= esc($product['harga']) ?>">
-                                                                <input type="hidden" name="quantity" value="1">
-                                                                <button type="submit" class="btn border border-secondary rounded-pill px-3 text-primary"><i class="fa fa-shopping-bag me-2 text-primary"></i> Add to cart</button>
-                                                            </form>
+                                                            <?php if ($product['product_id'] === 'PRDKCUST'): ?>
+                                                                <a href="<?= site_url('shop/product/' . $product['product_id']) ?>" class="btn border border-secondary rounded-pill px-3 text-primary"><i class="fa fa-edit me-2 text-primary"></i> Buat Pesanan</a>
+                                                            <?php else: ?>
+                                                                <form action="<?= base_url('cart/add') ?>" method="post" class="add-to-cart-form">
+                                                                    <?= csrf_field() ?>
+                                                                    <input type="hidden" name="product_id" value="<?= esc($product['product_id']) ?>">
+                                                                    <input type="hidden" name="product_name" value="<?= esc($product['nama_produk']) ?>">
+                                                                    <input type="hidden" name="product_price" value="<?= esc($product['harga']) ?>">
+                                                                    <input type="hidden" name="quantity" value="1">
+                                                                    <button type="submit" class="btn border border-secondary rounded-pill px-3 text-primary"><i class="fa fa-shopping-bag me-2 text-primary"></i> Add to cart</button>
+                                                                </form>
+                                                            <?php endif; ?>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -385,6 +389,14 @@
                 // Jika tidak ada ID, Anda perlu menambahkan ID ke span tersebut atau menyesuaikan selektor
                 $('.navbar .position-relative .rounded-circle').text(totalItems);
             }
+
+            // Cek jika ada pesan sukses untuk permintaan kustom
+            <?php if (session()->getFlashdata('custom_success')): ?>
+                var successMessage = "<?= esc(session()->getFlashdata('custom_success'), 'js') ?>";
+                $('#alertModalTitle').text('Permintaan Terkirim!');
+                $('#alertModalBody').html('<p>' + successMessage + '</p>');
+                $('#alertModal').modal('show');
+            <?php endif; ?>
         });
     </script>
 

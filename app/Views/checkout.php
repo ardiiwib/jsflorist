@@ -163,8 +163,9 @@
                             </div>
                             
                             <div class="form-item">
-                                <label class="form-label my-3">Tanggal Pengantaran/Pengambilan<sup>*</sup></label>
-                                <input type="date" class="form-control" name="tanggal_pengantaran" value="<?= old('tanggal_pengantaran') ?>" min="<?= date('Y-m-d') ?>" required>
+                                <label class="form-label my-3">Tanggal & Jam Pengantaran/Pengambilan<sup>*</sup></label>
+                                <small class="d-block text-muted mb-1">Waktu yang ditampilkan dan dipilih adalah Waktu Indonesia Tengah (WITA).</small>
+                                <input type="datetime-local" class="form-control" id="datetime-picker-checkout" name="tanggal_pengantaran" value="<?= old('tanggal_pengantaran') ?>" required>
                             </div>
 
                             <hr class="my-5"> <div class="mb-4">
@@ -209,7 +210,25 @@
                                                             <img src="<?= base_url('assets/img/gambar/' . esc($item['image'])) ?>" class="img-fluid rounded-circle" alt="<?= esc($item['name']) ?>">
                                                         </div>
                                                     </th>
-                                                    <td class="py-5"><?= esc($item['name']) ?></td>
+                                                    <td class="py-5">
+                                                        <?= esc($item['name']) ?>
+                                                        <?php if (isset($item['options']['custom_details'])): ?>
+                                                            <?php 
+                                                                $details = json_decode($item['options']['custom_details'], true);
+                                                            ?>
+                                                            <div class="mt-2 text-muted small">
+                                                                <?php if (!empty($details['jenis_item'])): ?>
+                                                                    <div><strong>Jenis:</strong> <?= esc($details['jenis_item']) ?></div>
+                                                                <?php endif; ?>
+                                                                <?php if (!empty($details['jumlah_item'])): ?>
+                                                                    <div><strong>Jumlah:</strong> <?= esc($details['jumlah_item']) ?></div>
+                                                                <?php endif; ?>
+                                                                <?php if (!empty($details['bunga']) && is_array($details['bunga'])): ?>
+                                                                    <div><strong>Bunga:</strong> <?= esc(implode(', ', $details['bunga'])) ?></div>
+                                                                <?php endif; ?>
+                                                            </div>
+                                                        <?php endif; ?>
+                                                    </td>
                                                     <td class="py-5">Rp<?= number_format($item['price'], 0, ',', '.') ?></td>
                                                     <td class="py-5"><?= esc($item['quantity']) ?></td>
                                                     <td class="py-5">Rp<?= number_format($itemTotal, 0, ',', '.') ?></td>
@@ -764,6 +783,33 @@
                 setTimeout(fetchShippingCost, 200); 
             });
 
+        });
+    </script>
+    <script>
+        // Script untuk datetime picker di checkout.php
+        document.addEventListener('DOMContentLoaded', function() {
+            const dateTimePicker = document.getElementById('datetime-picker-checkout');
+
+            function setMinDateTime() {
+                const now = new Date();
+                // Tambah 2 jam dari waktu sekarang
+                now.setHours(now.getHours() + 2);
+
+                // Format ke YYYY-MM-DDTHH:mm
+                const year = now.getFullYear();
+                const month = (now.getMonth() + 1).toString().padStart(2, '0');
+                const day = now.getDate().toString().padStart(2, '0');
+                const hours = now.getHours().toString().padStart(2, '0');
+                const minutes = now.getMinutes().toString().padStart(2, '0');
+
+                const minDateTime = `${year}-${month}-${day}T${hours}:${minutes}`;
+                
+                // Atur atribut 'min' pada elemen input
+                dateTimePicker.setAttribute('min', minDateTime);
+            }
+
+            // Panggil fungsi saat halaman dimuat
+            setMinDateTime();
         });
     </script>
     </body>

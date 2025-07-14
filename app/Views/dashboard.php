@@ -484,7 +484,7 @@
 
 
         <!-- Artikel Carousel Start -->
-        <div class="container-fluid py-5">
+         <div class="container-fluid py-5">
             <div class="container py-5">
                 <div class="text-center mx-auto mb-5" style="max-width: 700px;">
                     <h1 class="display-4">Tips & Cerita Florist</h1>
@@ -517,6 +517,9 @@
                         <p>Belum ada artikel yang tersedia.</p>
                     </div>
                 <?php endif; ?>
+                <div class="text-center mt-4">
+                    <a href="<?= base_url('artikel') ?>" class="btn border-secondary rounded-pill px-4 py-3 text-primary">Lihat Selengkapnya <i class="fa fa-arrow-right ms-2"></i></a>
+                </div>
             </div>
         </div>
         <!-- Artikel Carousel End -->

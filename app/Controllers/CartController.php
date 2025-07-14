@@ -1,18 +1,15 @@
 <?php
-
 namespace App\Controllers;
 
-use App\Models\ProductModel; // Pastikan ini di-import
+use App\Models\ProductModel;
 
 class CartController extends BaseController
 {
     public function __construct()
     {
-        // Memuat helper 'url' dan 'session' jika belum dimuat secara global
         helper(['url', 'session']);
     }
 
-    // Method untuk menambahkan produk ke keranjang
     public function add()
     {
         $session = session();
@@ -20,40 +17,23 @@ class CartController extends BaseController
         $productModel = new ProductModel();
 
         $productId = $request->getPost('product_id');
-        $quantity = $request->getPost('quantity') ?? 1; // Default quantity 1
+        $quantity = $request->getPost('quantity') ?? 1;
 
-        // --- START: MODIFIKASI VALIDASI ID PRODUK ---
-        // Validasi input productId: Pastikan tidak kosong dan bukan string kosong setelah trim
         if (empty($productId) || trim($productId) === '') {
             return $this->response->setJSON([
                 'status' => 'error',
                 'message' => 'ID Produk tidak valid (kosong).'
             ]);
         }
-        // Jika Anda ingin membatasi format ID produk (misal: hanya menerima PRDKXX)
-        // Anda bisa tambahkan regex di sini. Contoh:
-        // if (!preg_match('/^[A-Z]{4}\d{2}$/', $productId)) { // Contoh regex untuk format PRDK01
-        //     return $this->response->setJSON([
-        //         'status' => 'error',
-        //         'message' => 'Format ID Produk tidak valid.'
-        //     ]);
-        // }
-        // --- END: MODIFIKASI VALIDASI ID PRODUK ---
 
-
-        // Validasi kuantitas: Pastikan numerik dan lebih dari 0
         if (!is_numeric($quantity) || (int)$quantity < 1) {
             return $this->response->setJSON([
                 'status' => 'error',
                 'message' => 'Kuantitas tidak valid.'
             ]);
         }
-        $quantity = (int)$quantity; // Pastikan kuantitas adalah integer
+        $quantity = (int)$quantity;
 
-        // Ambil detail produk dari database menggunakan ProductModel
-        // find() akan mencari berdasarkan primaryKey, yang di ProductModel Anda adalah 'product_id'
-        // Karena ProductModel Anda menggunakan primaryKey 'product_id', dan itu sesuai dengan kolom database
-        // maka find() akan bekerja dengan baik meskipun ID-nya string.
         $product = $productModel->find($productId);
 
         if (!$product) {
@@ -63,28 +43,57 @@ class CartController extends BaseController
             ]);
         }
 
-        // Ambil keranjang dari session, atau inisialisasi jika belum ada
         $cart = $session->get('cart') ?? [];
 
-        // Cek apakah produk sudah ada di keranjang
+        $itemPrice = (float)$product['harga']; // Default price from product table
+        $customDetails = $request->getPost('custom_details'); // Get custom details from form
+
+        // --- START: MODIFIKASI UNTUK CUSTOM PRODUK (BUKET UANG) ---
+        if ($productId === 'PRDKUANG') {
+            // Server-side recalculation of upah and price to prevent tampering
+            $pecahan = (int)($customDetails['pecahan'] ?? 0);
+            $nominal = (int)($customDetails['nominal'] ?? 0);
+            $lembar = ($pecahan > 0) ? $nominal / $pecahan : 0;
+            $upahJasa = $this->calculateUpahBuketUang($lembar); // Recalculate upah server-side
+
+            if ($customDetails['money_source_type'] === 'uang_dari_toko') {
+                $itemPrice = $nominal + $upahJasa; // Nominal + Upah
+            } elseif ($customDetails['money_source_type'] === 'uang_sendiri') {
+                $itemPrice = $upahJasa; // Hanya Upah
+            }
+            // Ensure quantity is 1 for custom money bouquet, as price reflects the whole item
+            $quantity = 1;
+
+            // Add server-side calculated upah back to custom details for storage
+            $customDetails['upah'] = $upahJasa;
+            $customDetails['lembar'] = $lembar; // Also add lembar for consistency
+        }
+        // --- END: MODIFIKASI UNTUK CUSTOM PRODUK ---
+
         if (isset($cart[$productId])) {
-            // Jika sudah ada, tambahkan kuantitasnya
+            // For PRDKUANG, usually each customization is a new item, not a quantity increase.
+            // If it's PRDKUANG, we should probably add it as a new distinct item or update the existing one uniquely.
+            // For simplicity in this current cart structure, if product_id matches, it increments.
+            // A more robust solution for unique custom items would be to use a hashed key including custom_details.
             $cart[$productId]['quantity'] += $quantity;
+            // If the item is PRDKUANG, and a new one with same product_id is added,
+            // the custom_details might be overwritten or combined incorrectly depending on logic.
+            // For this specific request, we assume each PRDKUANG in the cart is distinct due to single quantity.
         } else {
-            // Jika belum ada, tambahkan produk baru ke keranjang
             $cart[$productId] = [
-                'id'       => $product['product_id'],   // Ini akan menyimpan 'PRDK01' di session
+                'id'       => $product['product_id'],
                 'name'     => $product['nama_produk'],
-                'price'    => (float)$product['harga'],
+                'price'    => $itemPrice,
                 'quantity' => $quantity,
-                'image'    => $product['gambar_url']
+                'image'    => $product['gambar_url'],
+                'options'  => [
+                    'custom_details' => $customDetails ? json_encode($customDetails) : null,
+                ]
             ];
         }
 
-        // Simpan kembali keranjang ke session
         $session->set('cart', $cart);
 
-        // Hitung total item di keranjang (opsional, untuk update ikon keranjang)
         $totalItemsInCart = 0;
         foreach ($cart as $item) {
             $totalItemsInCart += $item['quantity'];
@@ -97,16 +106,31 @@ class CartController extends BaseController
         ]);
     }
 
-    // Method untuk menampilkan halaman keranjang belanja
+    // Helper function to calculate upah (copied from CustomOrderController for server-side validation)
+    private function calculateUpahBuketUang(int $lembar): int
+    {
+        if ($lembar >= 5 && $lembar <= 20) {
+            return 250000;
+        } elseif ($lembar >= 21 && $lembar <= 40) {
+            return 400000;
+        } elseif ($lembar >= 41 && $lembar <= 60) {
+            return 600000;
+        } elseif ($lembar >= 61 && $lembar <= 80) {
+            return 800000;
+        } elseif ($lembar >= 81 && $lembar <= 100) {
+            return 1000000;
+        }
+        return 0;
+    }
+
     public function index()
     {
         $session = session();
         $data['cartItems'] = $session->get('cart') ?? [];
-        return view('cart', $data); // Memuat view cart.php
+        return view('cart', $data);
     }
 
-    // Opsional: Method untuk menghapus item dari keranjang
-    public function remove($productId) // productId di sini juga akan berupa string
+    public function remove($productId)
     {
         $session = session();
         $cart = $session->get('cart') ?? [];
@@ -126,40 +150,15 @@ class CartController extends BaseController
         ]);
     }
 
-    // Opsional: Method untuk mengupdate kuantitas item di keranjang
     public function update()
     {
         $session = session();
         $request = \Config\Services::request();
-       $productId = $request->getPost('product_id');
-    $quantity = $request->getPost('quantity');
+        $productId = $request->getPost('product_id');
+        $quantity = $request->getPost('quantity');
 
-    $cart = $session->get('cart') ?? [];
+        $cart = $session->get('cart') ?? [];
 
-    // Debug langsung isi variabel
-    // dd([
-    //     'productId_from_post' => $productId,
-    //     'quantity_from_post' => $quantity,
-    //     'cart_from_session' => $cart,
-    //     'isset_check' => isset($cart[$productId]), // Ini yang kita ingin tahu hasilnya TRUE/FALSE
-    //     'cart_keys' => array_keys($cart) // Lihat kunci-kunci yang ada di $cart
-    // ]);
-
-
-        // Validasi input productId
-        // if (empty($productId) || trim($productId) === '') {
-        //     return $this->response->setJSON([
-        //         'status' => 'error',
-        //         'message' => 'ID Produk tidak valid (kosong).'
-        //     ]);
-        // }
-        // // Validasi kuantitas
-        // if (!is_numeric($quantity) || (int)$quantity < 1) {
-        //     return $this->response->setJSON([
-        //         'status' => 'error',
-        //         'message' => 'Kuantitas tidak valid.'
-        //     ]);
-        // }
         $quantity = (int)$quantity;
 
         if (isset($cart[$productId])) {

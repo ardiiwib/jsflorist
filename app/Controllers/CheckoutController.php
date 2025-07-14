@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Controllers;
 
 use App\Models\OrderModel;
@@ -32,7 +31,7 @@ class CheckoutController extends BaseController
     public function initController(RequestInterface $request, ResponseInterface $response, LoggerInterface $logger)
     {
         parent::initController($request, $response, $logger);
-        
+
         helper(['url', 'session']);
 
         $this->orderModel = new OrderModel();
@@ -69,7 +68,7 @@ class CheckoutController extends BaseController
         } else {
             log_message('debug', 'User tidak login saat akses checkout.');
         }
-        
+
         $subtotalProduk = 0;
         foreach ($cartItems as $item) {
             $subtotalProduk += $item['price'] * $item['quantity'];
@@ -121,12 +120,13 @@ class CheckoutController extends BaseController
         $hasBungaPapan = false;
 
         $bungaPapanCategoryNames = ['Wedding']; // Ganti dengan nama kategori bunga papan yang ada di DB Anda
-        
+
         $bungaPapanCategories = $this->categoryModel->whereIn('nama_kategori', $bungaPapanCategoryNames)->findAll();
         $bungaPapanCategoryIds = array_column($bungaPapanCategories, 'category_id');
 
         if (!empty($bungaPapanCategoryIds)) {
             foreach ($cartItems as $item) {
+                // Ensure product details are available for cart items to check category_id
                 $productDetails = $this->productModel->find($item['id']);
                 if ($productDetails && in_array($productDetails['category_id'], $bungaPapanCategoryIds)) {
                     $hasBungaPapan = true;
@@ -134,7 +134,7 @@ class CheckoutController extends BaseController
                 }
             }
         }
-        
+
         log_message('debug', 'START Perhitungan Ongkir: Jarak: ' . $distanceKm . ' km. Ada Bunga Papan: ' . ($hasBungaPapan ? 'YA' : 'TIDAK'));
 
         // Aturan Ongkir:
@@ -172,7 +172,7 @@ class CheckoutController extends BaseController
     }
 
 
- 
+
     public function processOrder()
     {
         log_message('debug', 'Memulai proses pesanan di processOrder().');
@@ -183,7 +183,8 @@ class CheckoutController extends BaseController
             'nama_depan'          => 'required|min_length[3]|max_length[100]',
             'nama_belakang'       => 'permit_empty|max_length[100]',
             'nomor_pemesan'       => 'required|max_length[20]',
-            'tanggal_pengantaran' => 'required|valid_date[Y-m-d]',
+           // Di dalam method processOrder() di CheckoutController.php
+            'tanggal_pengantaran' => 'required|valid_date[Y-m-d\TH:i]',
             'tipe_pengantaran'    => 'required|in_list[Delivery,Self-Pickup]',
             'metode_pembayaran'   => 'required|in_list[Direct Bank Transfer,QRIS]',
             'catatan_penerima'    => 'permit_empty|max_length[500]',
@@ -232,7 +233,7 @@ class CheckoutController extends BaseController
 
             $latitude = $this->request->getPost('alamat_latitude');
             $longitude = $this->request->getPost('alamat_longitude');
-            
+
             if (empty($latitude) || empty($longitude) || !is_numeric($latitude) || !is_numeric($longitude)) {
                  log_message('error', 'Koordinat kosong atau tidak valid untuk pengiriman Tipe "Delivery". Lat: ' . $latitude . ', Lng: ' . $longitude);
                  return redirect()->back()->withInput()->with('error', 'Koordinat lokasi pengiriman wajib diisi untuk pengantaran. Mohon tentukan di peta.');
@@ -305,6 +306,7 @@ class CheckoutController extends BaseController
                     'product_id' => $item['id'],
                     'kuantitas'  => $item['quantity'],
                     'harga_satuan' => $item['price'],
+                    'custom_details' => $item['options']['custom_details'] ?? null, // Save custom details here
                 ];
                 $insertOrderItemSuccess = $this->orderItemModel->insert($orderItemData);
                 if (!$insertOrderItemSuccess) {
@@ -315,7 +317,7 @@ class CheckoutController extends BaseController
                 }
             }
             log_message('debug', 'Semua order items berhasil diinsert.');
-            
+
             $this->db->transCommit();
             $this->session->remove('cart');
 
@@ -340,7 +342,7 @@ class CheckoutController extends BaseController
         $response = service('response');
         $request = service('request');
  log_message('debug', 'AJAX estimateShipping dipanggil.');
-     
+
         $toLat = (float)$request->getPost('to_lat');
         $toLon = (float)$request->getPost('to_lon');
         $cartItemsJson = $request->getPost('cart_items_json'); // String JSON dari cart
@@ -391,7 +393,7 @@ class CheckoutController extends BaseController
         if (!$order) {
             return redirect()->to('/')->with('error', 'Pesanan tidak ditemukan.');
         }
-        
+
         if ($order['metode_pembayaran'] !== 'QRIS') {
             return redirect()->to('/')->with('error', 'Metode pembayaran tidak valid untuk halaman ini.');
         }

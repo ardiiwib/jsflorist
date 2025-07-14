@@ -34,11 +34,12 @@ class OrderModel extends Model
         'nomor_pemesan'
     ];
 
-    // Kita tidak menggunakan useTimestamps di model ini
-    protected $useTimestamps = false;
-    protected $createdField  = '';
-    protected $updatedField  = '';
+    // Mengaktifkan timestamps untuk created_at dan updated_at
+    protected $useTimestamps = true;
+    protected $createdField  = 'tanggal_pesan'; // Kolom ini akan diisi saat insert
+    protected $updatedField  = 'updated_at';    // Kolom ini akan diisi saat update
     protected $dateFormat    = 'datetime';
+
 
     // Validasi model (ini akan berjalan jika kita panggil $model->validate($data))
     // Tapi kita melakukan validasi di controller, jadi ini kurang relevan saat ini

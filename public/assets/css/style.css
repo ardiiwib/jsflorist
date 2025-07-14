@@ -492,6 +492,7 @@
   background: var(--bs-secondary);
   color: var(--bs-white);
 }
+
 /*** testimonial End ***/
 
 /*** Single Page Start ***/
@@ -537,4 +538,61 @@
 .footer .footer-item p.mb-4 {
   line-height: 35px;
 }
+
+/* Efek hover pada baris tabel */
+.table tbody tr:hover {
+  background-color: #fdf7f0 !important;
+  transition: background-color 0.3s ease-in-out;
+}
+
+/* Tambahkan padding agar badge terlihat lebih elegan */
+.badge.rounded-pill {
+  font-size: 0.85rem;
+}
+/* Hover baris tabel */
+.table tbody tr:hover {
+  background-color: #fdf7f0 !important;
+  transition: background-color 0.3s ease-in-out;
+}
+
+/* Badge custom */
+.badge-status {
+  padding: 0.5em 0.8em;
+  font-size: 0.85rem;
+  border-radius: 50rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.badge-status i {
+  font-size: 1rem;
+}
+
+/* Tombol aksi dengan icon */
+.btn-icon {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+.table-responsive.rounded {
+  border-radius: 12px;
+}
+
+.table thead th:first-child {
+  border-top-left-radius: 12px;
+}
+
+.table thead th:last-child {
+  border-top-right-radius: 12px;
+}
+
+.table tbody tr:last-child td:first-child {
+  border-bottom-left-radius: 12px;
+}
+
+.table tbody tr:last-child td:last-child {
+  border-bottom-right-radius: 12px;
+}
+
 /*** Footer End ***/

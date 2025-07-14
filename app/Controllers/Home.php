@@ -187,4 +187,11 @@ class Home extends BaseController
 
         return view('artikel_detail', $data);
     }
+      public function allArticles()
+    {
+        $artikelModel = new ArtikelModel();
+        $data['artikels'] = $artikelModel->orderBy('tanggal_dibuat', 'DESC')->findAll();
+
+        return view('all_articles', $data); // Buat view baru bernama all_articles.php
+    }
 }

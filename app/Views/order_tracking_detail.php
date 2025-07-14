@@ -19,8 +19,8 @@
                     
                     <div class="mb-4">
                         <p><strong>Status Pesanan:</strong> <span class="badge bg-primary fs-5"><?= esc($order['status_pesanan']) ?></span></p>
-                        <p><strong>Tanggal Pesan:</strong> <?= esc(date('d F Y H:i', strtotime($order['tanggal_pesan']))) ?></p>
-                        <p><strong>Tanggal Pengantaran:</strong> <?= esc(date('d F Y', strtotime($order['tanggal_pengantaran']))) ?></p>
+                        <p><strong>Tanggal Pesan:</strong> <?= esc(date('d F Y, H:i', strtotime($order['tanggal_pesan']))) ?> WITA</p>
+                        <p><strong>Tanggal & Jam Pengantaran:</strong> <?= esc(date('d F Y, H:i', strtotime($order['tanggal_pengantaran']))) ?> WITA</p>
                         <p><strong>Tipe Pengantaran:</strong> <?= esc($order['tipe_pengantaran']) ?></p>
                         <p><strong>Nama Penerima:</strong> <?= esc($order['penerima_nama']) ?></p>
                         <?php if (!empty($order['penerima_nomor_hp'])): ?>
@@ -78,7 +78,26 @@
                                                 <img src="<?= base_url('assets/img/default-product.jpg') ?>" alt="No Image" style="width: 70px; height: 70px; object-fit: cover; border-radius: 5px;">
                                             <?php endif; ?>
                                         </td>
-                                        <td><?= esc($item['nama_produk']) ?></td>
+                                        <td>
+                                            <?= esc($item['nama_produk']) ?>
+                                            <?php if (!empty($item['custom_details'])): ?>
+                                                <?php 
+                                                    // Decode JSON string dari custom_details
+                                                    $details = json_decode($item['custom_details'], true);
+                                                ?>
+                                                <div class="mt-2 text-muted small">
+                                                    <?php if (isset($details['jenis_item']) && !empty($details['jenis_item'])): ?>
+                                                        <div><strong>Jenis:</strong> <?= esc($details['jenis_item']) ?></div>
+                                                    <?php endif; ?>
+                                                    <?php if (isset($details['jumlah_item']) && !empty($details['jumlah_item'])): ?>
+                                                        <div><strong>Jumlah:</strong> <?= esc($details['jumlah_item']) ?></div>
+                                                    <?php endif; ?>
+                                                    <?php if (isset($details['bunga']) && is_array($details['bunga']) && !empty($details['bunga'])): ?>
+                                                        <div><strong>Bunga:</strong> <?= esc(implode(', ', $details['bunga'])) ?></div>
+                                                    <?php endif; ?>
+                                                </div>
+                                            <?php endif; ?>
+                                        </td>
                                         <td><?= esc($item['kuantitas']) ?></td>
                                         <td>Rp<?= number_format($item['harga_satuan'], 0, ',', '.') ?></td>
                                         <td>Rp<?= number_format($currentSubtotal, 0, ',', '.') ?></td>

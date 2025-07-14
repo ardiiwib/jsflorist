@@ -125,6 +125,23 @@
                                         </th>
                                         <td>
                                             <p class="mb-0 mt-4"><?= esc($item['name']) ?></p>
+                                            <?php if (isset($item['options']['custom_details'])): ?>
+                                                <?php 
+                                                    // Decode JSON string dari custom_details
+                                                    $details = json_decode($item['options']['custom_details'], true);
+                                                ?>
+                                                <div class="mt-2 text-muted small">
+                                                    <?php if (!empty($details['jenis_item'])): ?>
+                                                        <div><strong>Jenis:</strong> <?= esc($details['jenis_item']) ?></div>
+                                                    <?php endif; ?>
+                                                    <?php if (!empty($details['jumlah_item'])): ?>
+                                                        <div><strong>Jumlah:</strong> <?= esc($details['jumlah_item']) ?></div>
+                                                    <?php endif; ?>
+                                                    <?php if (!empty($details['bunga']) && is_array($details['bunga'])): ?>
+                                                        <div><strong>Bunga:</strong> <?= esc(implode(', ', $details['bunga'])) ?></div>
+                                                    <?php endif; ?>
+                                                </div>
+                                            <?php endif; ?>
                                         </td>
                                         <td>
                                             <p class="mb-0 mt-4">Rp<?= number_format($item['price'], 0, ',', '.') ?></p>

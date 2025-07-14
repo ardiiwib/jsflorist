@@ -16,6 +16,10 @@ $routes->post('cart/add', 'CartController::add'); // Untuk AJAX Add to Cart
 $routes->get('cart', 'CartController::index');   // Untuk menampilkan halaman keranjang (cart.php)
 $routes->post('cart/remove/(:segment)', 'CartController::remove/$1'); // Opsional: Untuk menghapus item
 $routes->post('cart/update', 'CartController::update'); // Opsional: Untuk update kuantitas
+
+// Routes untuk Permintaan Produk Kustom (SKIP CART)
+$routes->post('custom/checkout', 'CustomOrderController::checkout');
+$routes->post('custom/save', 'CustomOrderController::saveRequest');
 // Routes untuk Checkout
 $routes->get('checkout', 'CheckoutController::index');
 $routes->post('checkout/process', 'CheckoutController::processOrder');
@@ -27,3 +31,17 @@ $routes->post('track-order/track', 'OrderTracking::track'); // Memproses pelacak
 // Routes untuk Pembayaran
 $routes->get('payment/bank-transfer/(:num)', 'Payment::showBankTransfer/$1'); // Halaman detail rekening & upload bukti
 $routes->post('payment/upload-proof', 'Payment::uploadProof'); // Endpoint untuk upload bukti transfer
+$routes->get('artikel', 'Home::allArticles');
+
+$routes->group('admin', function($routes) {
+    $routes->get('orders', 'Admin\OrderController::index');
+    $routes->get('orders/detail/(:num)', 'Admin\OrderController::detail/$1');
+    $routes->post('orders/updateStatus/(:num)', 'Admin\OrderController::updateStatus/$1');
+    $routes->get('custom-requests', 'Admin\CustomRequestController::index');
+    $routes->post('custom-requests/update-status/(:num)', 'Admin\CustomRequestController::updateStatus/$1');
+    // Rute placeholder untuk Pendapatan dan Produk
+    $routes->get('revenue', 'Admin\RevenueController::index'); // Anda perlu membuat Admin\RevenueController
+    $routes->get('products', 'Admin\ProductController::index'); // Anda perlu membuat Admin\ProductController
+    $routes->get('products/create', 'Admin\ProductController::create'); // Untuk tambah produk
+    $routes->post('products/save', 'Admin\ProductController::save'); // Untuk menyimpan produk baru
+});
