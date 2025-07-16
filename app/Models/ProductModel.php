@@ -16,7 +16,7 @@ class ProductModel extends Model
 
     protected $allowedFields = [
         'product_id',
-        'category_id',
+        'sub_category_id',
         'nama_produk',
         'deskripsi_produk',
         'harga',
@@ -45,11 +45,11 @@ class ProductModel extends Model
     protected $skipValidation = false;
 
     // Contoh relasi (Anda bisa tambahkan method untuk mengambil kategori)
-    public function getProductWithCategory(int $productId)
-    {
-        return $this->select('products.*, categories.nama_kategori')
-                    ->join('categories', 'categories.category_id = products.category_id')
-                    ->where('products.product_id', $productId)
-                    ->first();
-    }
+    // public function getProductWithCategory(int $productId)
+    // {
+    //     return $this->select('products.*, categories.nama_kategori')
+    //                 ->join('categories', 'categories.category_id = products.category_id')
+    //                 ->where('products.product_id', $productId)
+    //                 ->first();
+    // }
 }
