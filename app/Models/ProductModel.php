@@ -15,14 +15,15 @@ class ProductModel extends Model
     protected $useSoftDeletes = false;
 
     protected $allowedFields = [
+        'product_id',
         'category_id',
         'nama_produk',
         'deskripsi_produk',
         'harga',
         'gambar_url',
-        'berat_gram',
         'is_active',
     ];
+
 
     protected $useTimestamps = true;
     protected $createdField  = 'tanggal_dibuat';
@@ -30,14 +31,14 @@ class ProductModel extends Model
     protected $dateFormat    = 'datetime';
 
     protected $validationRules = [
-        'category_id'      => 'required|integer',
+        'category_id'      => 'required',
         'nama_produk'      => 'required|min_length[5]|max_length[255]',
         'deskripsi_produk' => 'permit_empty',
         'harga'            => 'required|decimal|greater_than_equal_to[0]',
-        'gambar_url'       => 'permit_empty|valid_url', // Validasi URL opsional
-        'berat_gram'       => 'permit_empty|integer|greater_than_equal_to[0]',
-        'is_active'        => 'permit_empty|is_boolean',
+        'gambar_url'       => 'permit_empty',
+        'is_active'        => 'in_list[0,1]',
     ];
+
 
     protected $validationMessages = []; // Tambahkan pesan kustom jika diperlukan
 

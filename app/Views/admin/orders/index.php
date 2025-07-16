@@ -22,8 +22,8 @@ Daftar Pesanan
 
 <!-- Tabel Pesanan Aktif -->
 <h2 class="mt-5">Pesanan Aktif (Belum Selesai)</h2>
-<div class="table-responsive rounded overflow-hidden shadow-sm border">
-    <table class="table table-striped mb-0 align-middle">
+    <div class="table-responsive">
+            <table class="table table-striped table-bordered">
 
         <thead class="bg-primary text-white">
             <tr>
@@ -101,8 +101,8 @@ Daftar Pesanan
 
 <!-- Tabel Pesanan Selesai Hari Ini -->
 <h2 class="mt-5 pt-4 border-top">Pesanan Selesai Hari Ini</h2>
-<div class="table-responsive rounded overflow-hidden shadow-sm border">
-    <table class="table table-striped mb-0 align-middle">
+    <div class="table-responsive">
+            <table class="table table-striped table-bordered">
 
         <thead class="bg-primary text-white">
             <tr>

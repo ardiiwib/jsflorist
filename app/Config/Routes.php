@@ -36,12 +36,20 @@ $routes->get('artikel', 'Home::allArticles');
 $routes->group('admin', function($routes) {
     $routes->get('orders', 'Admin\OrderController::index');
     $routes->get('orders/detail/(:num)', 'Admin\OrderController::detail/$1');
-    $routes->post('orders/updateStatus/(:num)', 'Admin\OrderController::updateStatus/$1');
+   $routes->post('orders/updateStatus/(:num)', 'Admin\OrderController::updateStatus/$1');
     $routes->get('custom-requests', 'Admin\CustomRequestController::index');
     $routes->post('custom-requests/update-status/(:num)', 'Admin\CustomRequestController::updateStatus/$1');
     // Rute placeholder untuk Pendapatan dan Produk
-    $routes->get('revenue', 'Admin\RevenueController::index'); // Anda perlu membuat Admin\RevenueController
+// Anda perlu membuat Admin\RevenueController
+$routes->get('products/analysis', 'Admin\OrderController::productAnalysis'); // <-- TAMBAHKAN INI
     $routes->get('products', 'Admin\ProductController::index'); // Anda perlu membuat Admin\ProductController
-    $routes->get('products/create', 'Admin\ProductController::create'); // Untuk tambah produk
-    $routes->post('products/save', 'Admin\ProductController::save'); // Untuk menyimpan produk baru
+     $routes->get('products', 'Admin\ProductController::index');
+    $routes->get('products/create', 'Admin\ProductController::create');
+    $routes->post('products/store', 'Admin\ProductController::store');
+    $routes->get('products/edit/(:segment)', 'Admin\ProductController::edit/$1');
+    $routes->post('products/update/(:segment)', 'Admin\ProductController::update/$1');
+    $routes->get('products/delete/(:num)', 'Admin\ProductController::delete/$1');// Untuk menyimpan produk baru
+     $routes->get('dashboard', 'Admin\DashboardController::dashboard'); // Atau 'Admin\DashboardController::index' jika pakai controller baru
+    // $routes->get('dashboard', 'Admin\Orders::dashboard'); // Alias
+       $routes->get('revenue', 'Admin\OrderController::revenue'); 
 });

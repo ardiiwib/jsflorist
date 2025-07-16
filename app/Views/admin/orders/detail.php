@@ -77,7 +77,7 @@ Detail Pesanan #<?= esc($order['order_id']) ?>
                                 <tr>
                                     <td>
                                         <?php if (!empty($item['gambar_url'])): ?>
-                                            <img src="<?= base_url('assets/img/gambar/' . esc($item['gambar_url'])) ?>" alt="<?= esc($item['nama_produk']) ?>">
+                                          <img src="<?= base_url('assets/img/gambar/' . esc($item['gambar_url'])) ?>" alt="<?= esc($item['nama_produk']) ?>" class="product-thumbnail">
                                         <?php else: ?>
                                             <img src="<?= base_url('assets/img/default-product.jpg') ?>" alt="No Image">
                                         <?php endif; ?>

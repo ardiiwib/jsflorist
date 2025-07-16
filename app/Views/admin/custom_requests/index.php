@@ -30,8 +30,8 @@ Custom Product Requests
     $available_statuses = array_keys($status_classes);
 ?>
 
-<div class="table-responsive rounded overflow-hidden shadow-sm border">
-    <table class="table table-striped mb-0 align-middle">
+    <div class="table-responsive">
+            <table class="table table-striped table-bordered">
         <thead class="bg-primary text-white">
             <tr>
                 <th>Tanggal Request</th>

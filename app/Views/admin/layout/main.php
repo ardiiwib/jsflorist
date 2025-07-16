@@ -5,18 +5,69 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title><?= $this->renderSection('title') ?> - Admin JS Florist</title>
     <link href="<?= base_url('assets/css/bootstrap.min.css') ?>" rel="stylesheet">
+    <link href="<?= base_url('assets/css/style.css') ?>" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
     <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.15.4/css/all.css"/>
     <style>
-        /* General Body & Wrapper Styles */
-        body {
-            background-color: #f8f9fa;
-            overflow-x: hidden; /* Prevent horizontal scroll */
-        }
-        #wrapper {
-            display: flex;
-            padding-top: 56px; /* Height of the navbar */
-        }
 
+        .pagination {
+    display: flex;
+    flex-wrap: wrap; /* Allows items to wrap if screen size is small */
+    justify-content: center; /* Centers the pagination block */
+    padding-left: 0; /* Remove default padding from ul */
+    list-style: none; /* Remove list bullets */
+    border-radius: 0.25rem; /* Standard Bootstrap border-radius for the group */
+}
+
+/* Style for each individual pagination item (li) */
+.pagination .page-item {
+    margin: 0; /* Remove any external margins */
+    /* If items are still sticking, try adding a very small right margin: */
+    /* margin-right: 2px; */
+}
+
+/* Style for the actual link (a) inside each page item */
+.pagination .page-item .page-link {
+    position: relative; /* Needed for z-index on active */
+    display: block; /* Ensure the link takes full space and allows padding */
+    padding: 0.375rem 0.75rem; /* Standard Bootstrap padding for links */
+    text-decoration: none; /* Remove underline */
+    line-height: 1.5; /* Standard line height */
+    color: #0d6efd; /* Bootstrap blue, adjust if needed for your theme */
+    background-color: #fff; /* White background */
+    border: 1px solid #dee2e6; /* Light gray border */
+    transition: color .15s ease-in-out, background-color .15s ease-in-out, border-color .15s ease-in-out, box-shadow .15s ease-in-out;
+}
+
+/* Specific styling for rounded corners on the first and last items if needed */
+.pagination .page-item:first-child .page-link {
+    border-top-left-radius: 0.25rem;
+    border-bottom-left-radius: 0.25rem;
+}
+.pagination .page-item:last-child .page-link {
+    border-top-right-radius: 0.25rem;
+    border-bottom-right-radius: 0.25rem;
+}
+/* Ensure borders collapse neatly between items */
+.pagination .page-item:not(:first-child) .page-link {
+    margin-left: -1px;
+}
+.product-thumbnail {
+    width: 80px;      /* Atur lebar gambar */
+    height: 80px;     /* Atur tinggi gambar */
+    object-fit: cover; /* Membuat gambar tetap proporsional */
+    border-radius: 0.25rem; /* Sudut sedikit melengkung (opsional) */
+}
+
+        /* General Body & Wrapper Styles */
+       body {
+    background-color: #f8f9fa;
+    padding-top: 100px; /* <-- TAMBAHKAN PADDING DI SINI */
+}
+#wrapper {
+    display: flex;
+    /* padding-top: 56px; <-- Padding sudah dipindah ke body */
+}
         /* Sidebar Styles */
         #sidebar-wrapper {
             min-width: 250px;
@@ -60,10 +111,11 @@
         }
 
         /* Page Content Styles */
-        #page-content-wrapper {
-            width: 100%;
-            padding: 1.5rem;
-        }
+      #page-content-wrapper {
+    width: 100%;
+    padding: 1.5rem;
+    min-width: 0; /* <-- TAMBAHKAN BARIS INI */
+}
 
         /* Mobile Responsive Styles (Off-canvas) */
         @media (max-width: 991.98px) {
@@ -134,18 +186,24 @@
         <div id="sidebar-wrapper">
             <div class="sidebar-heading">Navigasi Admin</div>
             <div class="list-group list-group-flush">
+                  <a href="<?= base_url('admin/dashboard') ?>" class="list-group-item list-group-item-action <?= (service('uri')->getSegment(2) == 'dashboard' || service('uri')->getSegment(2) == '') ? 'active' : '' ?>">
+            <i class="fas fa-fw fa-tachometer-alt me-2"></i> Dashboard
+        </a>
                 <a href="<?= base_url('admin/orders') ?>" class="list-group-item list-group-item-action <?= service('uri')->getSegment(2) == 'orders' ? 'active' : '' ?>">
                     <i class="fas fa-clipboard-list me-2"></i> Pemesanan
                 </a>
                 <a href="<?= base_url('admin/custom-requests') ?>" class="list-group-item list-group-item-action <?= service('uri')->getSegment(2) == 'custom-requests' ? 'active' : '' ?>">
                     <i class="fas fa-comments me-2"></i> Custom Requests
                 </a>
-                <a href="<?= base_url('admin/revenue') ?>" class="list-group-item list-group-item-action <?= service('uri')->getSegment(2) == 'revenue' ? 'active' : '' ?>">
-                    <i class="fas fa-chart-line me-2"></i> Pendapatan
-                </a>
-                <a href="<?= base_url('admin/products') ?>" class="list-group-item list-group-item-action <?= service('uri')->getSegment(2) == 'products' ? 'active' : '' ?>">
-                    <i class="fas fa-boxes me-2"></i> Produk
-                </a>
+                <a href="<?= base_url('admin/revenue') ?>" class="list-group-item list-group-item-action  <?= service('uri')->getSegment(2) == 'revenue' ? 'active' : '' ?>">
+    <i class="fas fa-chart-line me-2"></i> Pendapatan
+</a>
+                <a href="<?= base_url('admin/products') ?>" class="list-group-item list-group-item-action  <?= service('uri')->getSegment(2) == 'products' && service('uri')->getSegment(3) != 'analysis' ? 'active' : '' ?>">
+    <i class="fas fa-boxes me-2"></i> Produk
+</a>
+<a href="<?= base_url('admin/products/analysis') ?>" class="list-group-item list-group-item-action  <?= service('uri')->getSegment(3) == 'analysis' ? 'active' : '' ?>">
+    <i class="fas fa-chart-pie me-2"></i> Analisis Produk
+</a>
             </div>
         </div>
 
